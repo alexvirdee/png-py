@@ -21,10 +21,10 @@ def convert_files():
     files = request.files.getlist('files')
     print('files', files)
     output_path = os.path.join(os.getcwd(), 'converted_to_png')
-    
+
     # Clean up previous converted files
     shutil.rmtree(output_path, ignore_errors=True)
-    
+
     # Create the output folder
     os.makedirs(output_path, exist_ok=True)
 
@@ -67,9 +67,8 @@ def download_images():
     finally:
         if os.path.exists(zip_filename):
             os.remove(zip_filename)
-
-    return jsonify({'message': 'Failed to create ZIP file.'})
-
+        if os.path.exists(output_path):
+            shutil.rmtree(output_path)
 
 if __name__ == '__main__':
     app.run(port=5001)
