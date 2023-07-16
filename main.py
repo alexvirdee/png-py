@@ -6,13 +6,14 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, supports_credentials=True, expose_headers='Content-Disposition')
 
-def convert_to_png(input_path, output_path):
+def convert_to_png(input_path, output_path, pdf_filename):
     images = convert_from_path(input_path)
     for i, image in enumerate(images):
         page_number = i + 1
-        image_path = os.path.join(output_path, f"page_{page_number}.png")
+        image_name = f"page_{page_number}_{pdf_filename}.png"
+        image_path = os.path.join(output_path, image_name)
         image.save(image_path, "PNG")
 
 @app.route('/convert', methods=['POST'])
@@ -30,9 +31,10 @@ def convert_files():
     try:
         for file in files:
             if file.filename.endswith('.pdf'):
+                pdf_filename = os.path.splitext(file.filename)[0]
                 input_path = os.path.join(output_path, file.filename)
                 file.save(input_path)
-                convert_to_png(input_path, output_path)
+                convert_to_png(input_path, output_path, pdf_filename)
 
         return jsonify({'message': 'Conversion successful!'})
 
@@ -70,4 +72,4 @@ def download_images():
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(port=5001)
