@@ -1,5 +1,8 @@
 import os 
+from flask import Flask, request, jsonify
 from pdf2image import convert_from_path
+
+app = Flask(__name__)
 
 def pdf_to_png(input_path, output_path):
     pages = convert_from_path(input_path)
@@ -10,6 +13,7 @@ def pdf_to_png(input_path, output_path):
 
 pdf_to_png.page_counter = 0
 
+@app.route('/convert', methods=['POST'])
 def convert_folder(folder_path):
     output_path = os.path.join(folder_path, 'png-images')  # Specify the output folder
     os.makedirs(output_path, exist_ok=True)
@@ -18,6 +22,7 @@ def convert_folder(folder_path):
             input_path = os.path.join(folder_path, filename)
             pdf_to_png(input_path, output_path)
 
+    return jsonify({ 'message': 'Conversion successful!' })
+
 if __name__ == '__main__':
-    folder_path = input("Enter the folder path: ")
-    convert_folder(folder_path)
+    app.run()
